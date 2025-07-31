@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>스페셜매치 등급표</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h2 {
+      margin-top: 40px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+      font-size: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .group {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 30px;
+      border-radius: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 40px;
+    }
+    .player {
+      padding: 8px 14px;
+      background-color: #e6f0ff;
+      border-radius: 12px;
+      cursor: grab;
+      user-select: none;
+      font-size: 14px;
+      white-space: nowrap;
+      transition: background-color 0.2s;
+    }
+    .player:hover {
+      background-color: #d0e7ff;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    input[type="text"], input[type="password"], select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+    }
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <input type="text" id="search" placeholder="닉네임 검색">
+  </div>
+
+  <div id="groupsContainer"></div>
+
+  <div class="controls" style="margin-top: 40px;">
+    <input type="password" id="adminPass" placeholder="운영자 비밀번호 입력">
+    <button onclick="toggleAdmin()">운영자 모드 전환</button>
+  </div>
+
+  <div id="addPlayerSection" class="controls hidden">
+    <input type="text" id="newNick" placeholder="신규 닉네임">
+    <select id="newGrade">
+      <option value="T1">T1</option>
+      <option value="T2">T2</option>
+      <option value="T3">T3</option>
+      <option value="T4">T4</option>
+    </select>
+    <button onclick="addPlayer()">추가</button>
+  </div>
+
+  <script>
+    const rawData = `흥국 T4
+펠릭스 T4
+후파파 T4
+세코필 T4
+엽완 T3
+제니파파 T4
+연도해요 T4
+살민 T4
+가가 T3
+구성동호랭이 T4
+밤빵 T4
+디아이 T4
+장트라볼타 T4
+정람 T4
+이승규 T4
+인절미 T4
+돌아온너구리 T4
+잠실느림보 T4
+후니아빠 T4
+무시말라 T4
+짜로 T4
+황룡 T4
+해방촌아구에로 T4
+예능감 T3
+택신 T4
+관론소 T4
+해냄 T4
+웨인루리 T4
+열정가이 T4
+외동고르 T4
+허욜 T4
+어린완자 T3
+왕초보 T4
+에이태클 T4
+대동리캄포스 T4
+쏘닉 T3
+잔돈줘 T4
+마린보이 T4
+안프로 T4
+메이슨 T4
+밀러 T4
+털바페 T3
+박알베스 T4
+영등포초보 T4
+쿠키 T4
+복돌 T3
+토니바튼 T3
+초이크로스 T4
+흑구망 T4
+최원석 T4
+정PD T4
+리신 T4
+최태 T4
+서창맨 T4
+임숑 T4
+던 T4
+시아지뉴 T4
+윤빛다람쥐 T4
+빼드리 T4
+제리 T4
+그리재민 T4
+동푸욜 T4
+메로롱 T4
+음오아예 T4
+스지팡팡 T4
+피컨보스 T4
+박지성 T4
+왕초 T4
+메이슨 T4
+카르바훈 T4
+반포축돌이 T4
+송파구너 T4
+별네스타 T4
+대박스 T4
+바트 T4
+캉캉 T4
+종로구민 T3
+스피드도둑 T3
+광안리보안관 T4
+섬주민 T3
+공돌이 T4
+그날아닌구티 T4
+소룡 T4
+한인규 T4
+퀄티 T4
+동표(타이거FC) T4
+키만메시 T4
+밍키 T4
+노드베드 T4
+김코코넛 T4
+이두부 T4
+당근 T4
+로리 T4
+하람파파 T4
+백승진 T4
+안태니 T4
+강릉칸나바로 T4
+융자 T4
+까뮈 T4
+언디파인드 T4
+매봉역말디니 T4
+가군 T4
+hy T4
+영표리 T4
+꼬꼬슛돌이 T4
+등지고딱딱 T4
+구라드(박) T4
+부추캤쥬 T4
+규드리치 T4
+제이드 T4
+가레스리 T4
+몽교 T4
+여파름파 T4
+시안 T4
+가경 T4
+예붕 T4
+돌격코끼리 T4
+류투소 T3
+제이 T4
+원타임 T4
+초보인데용 T4
+루크석 T4
+아바타사포 T4
+석촌동홍명보 T4
+안리 T3
+활키미 T4
+용브로타 T4
+로아나 T4
+피지컬만반다이크 T4
+알제이 T4
+티아KO실바 T4
+제이비 T4
+야한 T4
+93벤제마 T3
+버스 T4
+MJ T3
+조비스띠 T4
+문정까를로스 T4
+김pro T4
+뒤뒤에 T4
+부츠 T4
+단백질도둑 T4
+엔지호 T4
+함브로빈 T4
+톰뭉 T4
+하늬 T4
+쉐바지오 T3
+툐니크로스 T3
+김민재 T4
+해원아빠 T4
+동대문야야투레 T4
+루까꿍 T4
+반개의심장 T4
+민토 T3
+작은육각형 T4
+훔멜스 T4
+허리케인 T4
+운정엔리케 T4
+아바타싸커 T4
+BRONCO T4
+김뭉키 T4
+센터백원툴 T4
+승리발 T4
+JM T4
+포단주 T4
+준스타((구)제이팍) T4
+하태하태 T4
+광날두 T4
+국밥(박) T4
+포그바 T4
+고길동 T4
+맹구 T4
+첼시살라 T4
+지안84 T4
+목동메시 T4
+스콜스경((구)개인기) T3
+벨링에헴 T3
+재다이크 T4
+제이비 T3
+최강 T4
+동콜스 T4
+죽전동무릎잡이 T4
+민자매빠 T4
+쿠쿠다스 T4
+조콜 T4
+쌀기 T4
+서이아빠 T4
+흰머리 T4
+여의도헤리케인 T4
+빈다이크 T4
+히치즈 T4
+이드리치 T4
+내꿈은피를로 T4`;
+
+    let data = rawData.trim().split('\n').map(line => {
+      const [nick, grade] = line.split(/\t| /);
+      return { nick, grade };
+    });
+
+    let isAdmin = false;
+    const allGrades = ['T1', 'T2', 'T3', 'T4'];
+    const groupsContainer = document.getElementById('groupsContainer');
+
+    function render() {
+      groupsContainer.innerHTML = '';
+      allGrades.forEach(grade => {
+        const title = document.createElement('h2');
+        const count = data.filter(d => d.grade === grade).length;
+        title.innerHTML = `${grade} 그룹 <span style="font-size:14px; color:#888;">(${count}명)</span>`;
+
+        const group = document.createElement('div');
+        group.className = 'group';
+        group.id = grade;
+
+        data.filter(d => d.grade === grade).forEach(player => {
+          const div = document.createElement('div');
+          div.className = 'player';
+          div.textContent = player.nick;
+          div.dataset.nick = player.nick;
+          group.appendChild(div);
+        });
+
+        groupsContainer.appendChild(title);
+        groupsContainer.appendChild(group);
+
+        Sortable.create(group, {
+          group: 'shared',
+          animation: 150,
+          disabled: !isAdmin,
+          onAdd: function (evt) {
+            const nick = evt.item.dataset.nick;
+            const newGrade = evt.to.id;
+            const p = data.find(d => d.nick === nick);
+            if (p) p.grade = newGrade;
+            render();
+          }
+        });
+      });
+      document.getElementById('addPlayerSection').classList.toggle('hidden', !isAdmin);
+    }
+
+    function addPlayer() {
+      const nick = document.getElementById('newNick').value.trim();
+      const grade = document.getElementById('newGrade').value;
+      if (!nick || data.some(d => d.nick === nick)) return alert("닉네임을 입력하거나 이미 존재합니다");
+      data.push({ nick, grade });
+      document.getElementById('newNick').value = '';
+      render();
+    }
+
+    function toggleAdmin() {
+      const pw = document.getElementById('adminPass').value;
+      if (pw === '5760') {
+        isAdmin = !isAdmin;
+        render();
+      } else {
+        alert('비밀번호가 틀렸습니다');
+      }
+    }
+
+    document.getElementById('search').addEventListener('input', function(e) {
+      const keyword = e.target.value.trim();
+      document.querySelectorAll('.player').forEach(div => {
+        if (!keyword || div.textContent.includes(keyword)) {
+          div.classList.remove('hidden');
+        } else {
+          div.classList.add('hidden');
+        }
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
