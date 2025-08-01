@@ -5,17 +5,18 @@
   <title>포메이션 짜기</title>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
-body {
-  margin: 0;
-  background: url('field_background.png') no-repeat center center;
-  background-size: cover;
-  font-family: sans-serif;
-}
+    body {
+      margin: 0;
+      background: url('field_background.png') no-repeat center center;
+      background-size: contain;
+      background-color: #000;
+      font-family: sans-serif;
+    }
 
     #formationField {
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 90vh;
       justify-content: space-evenly;
       align-items: center;
       padding: 20px;
@@ -47,6 +48,11 @@ body {
       border-top: 2px solid #ccc;
     }
     h2 { text-align: center; color: white; margin-top: 20px; }
+    .group-label {
+      color: white;
+      margin: 5px 0;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -59,7 +65,10 @@ body {
     <div id="gk" class="line" data-max="1"></div>
   </div>
 
-  <div class="bench" id="bench"></div>
+  <div class="group-label">T3 그룹</div>
+  <div class="bench" id="bench-t3"></div>
+  <div class="group-label">T4 그룹</div>
+  <div class="bench" id="bench-t4"></div>
 
   <script>
     let players = [];
@@ -72,6 +81,7 @@ body {
           div.className = 'player';
           div.textContent = p.nick;
           div.dataset.nick = p.nick;
+          div.dataset.grade = p.grade;
           return div;
         });
         renderBench();
@@ -79,9 +89,14 @@ body {
       });
 
     function renderBench() {
-      const bench = document.getElementById('bench');
-      bench.innerHTML = '';
-      players.forEach(player => bench.appendChild(player));
+      const t3 = document.getElementById('bench-t3');
+      const t4 = document.getElementById('bench-t4');
+      t3.innerHTML = '';
+      t4.innerHTML = '';
+      players.forEach(player => {
+        if (player.dataset.grade === 'T3') t3.appendChild(player);
+        else if (player.dataset.grade === 'T4') t4.appendChild(player);
+      });
     }
 
     function enableDropZones() {
@@ -95,7 +110,11 @@ body {
         });
       });
 
-      Sortable.create(document.getElementById('bench'), {
+      Sortable.create(document.getElementById('bench-t3'), {
+        group: 'shared',
+        animation: 150
+      });
+      Sortable.create(document.getElementById('bench-t4'), {
         group: 'shared',
         animation: 150
       });
@@ -105,7 +124,7 @@ body {
       const max = parseInt(zone.dataset.max);
       const items = zone.querySelectorAll('.player');
       if (items.length > max) {
-        zone.removeChild(items[items.length - 1]); // 초과 시 마지막 제거
+        zone.removeChild(items[items.length - 1]);
         alert(`${id.toUpperCase()}에는 최대 ${max}명까지 가능합니다.`);
       }
       updateTotalLimit();
