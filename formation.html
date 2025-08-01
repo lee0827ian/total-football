@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>포메이션 짜기</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: url('bbb2b739-6394-499d-92b0-013f3ac394e2.png') no-repeat center center;
+      background-size: cover;
+      font-family: sans-serif;
+    }
+    #formationField {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+    .line {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      min-height: 60px;
+      flex-wrap: wrap;
+    }
+    .player {
+      background: rgba(255,255,255,0.9);
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: grab;
+    }
+    .bench {
+      background: #f2f2f2;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      border-top: 2px solid #ccc;
+    }
+    h2 { text-align: center; color: white; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>포메이션 편집</h2>
+  <div id="formationField">
+    <div id="attack" class="line" data-max="3"></div>
+    <div id="mid1" class="line" data-max="3"></div>
+    <div id="mid2" class="line" data-max="3"></div>
+    <div id="defense" class="line" data-max="4"></div>
+    <div id="gk" class="line" data-max="1"></div>
+  </div>
+
+  <div class="bench" id="bench"></div>
+
+  <script>
+    let players = [];
+
+    fetch('players.json')
+      .then(res => res.json())
+      .then(json => {
+        players = json.map(p => {
+          const div = document.createElement('div');
+          div.className = 'player';
+          div.textContent = p.nick;
+          div.dataset.nick = p.nick;
+          return div;
+        });
+        renderBench();
+        enableDropZones();
+      });
+
+    function renderBench() {
+      const bench = document.getElementById('bench');
+      bench.innerHTML = '';
+      players.forEach(player => bench.appendChild(player));
+    }
+
+    function enableDropZones() {
+      const zones = ['attack', 'mid1', 'mid2', 'defense', 'gk'];
+      zones.forEach(id => {
+        const zone = document.getElementById(id);
+        Sortable.create(zone, {
+          group: 'shared',
+          animation: 150,
+          onAdd: () => limitPlayers(zone, id)
+        });
+      });
+
+      Sortable.create(document.getElementById('bench'), {
+        group: 'shared',
+        animation: 150
+      });
+    }
+
+    function limitPlayers(zone, id) {
+      const max = parseInt(zone.dataset.max);
+      const items = zone.querySelectorAll('.player');
+      if (items.length > max) {
+        zone.removeChild(items[items.length - 1]); // 초과 시 마지막 제거
+        alert(`${id.toUpperCase()}에는 최대 ${max}명까지 가능합니다.`);
+      }
+      updateTotalLimit();
+    }
+
+    function updateTotalLimit() {
+      const all = document.querySelectorAll('.line .player');
+      if (all.length > 11) {
+        const last = all[all.length - 1];
+        last.parentElement.removeChild(last);
+        alert('포메이션은 최대 11명까지 가능합니다.');
+      }
+    }
+  </script>
+</body>
+</html>
