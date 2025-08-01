@@ -22,13 +22,16 @@
       padding: 20px;
       color: white;
     }
+
     .line {
       display: flex;
       justify-content: center;
       gap: 10px;
       min-height: 60px;
       flex-wrap: wrap;
+      border: 2px dashed transparent;
     }
+
     .player {
       background: rgba(255,255,255,0.9);
       color: #333;
@@ -37,21 +40,40 @@
       font-size: 14px;
       cursor: grab;
     }
-    .bench {
-      background: #f2f2f2;
-      padding: 10px;
+
+    .benchWrapper {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 8px;
-      margin-top: 20px;
-      border-top: 2px solid #ccc;
+      gap: 20px;
+      padding: 20px;
+      background: #f9f9f9;
     }
-    h2 { text-align: center; color: white; margin-top: 20px; }
-    .group-label {
-      color: white;
-      margin: 5px 0;
+
+    .benchGroup {
+      padding: 10px;
+      border-radius: 8px;
+      min-width: 180px;
+      min-height: 60px;
+    }
+
+    #benchT3 {
+      background-color: #e6f0ff;
+    }
+
+    #benchT4 {
+      background-color: #fffacc;
+    }
+
+    .benchTitle {
+      text-align: center;
       font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      text-align: center;
+      color: white;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -65,10 +87,14 @@
     <div id="gk" class="line" data-max="1"></div>
   </div>
 
-  <div class="group-label">T3 그룹</div>
-  <div class="bench" id="bench-t3"></div>
-  <div class="group-label">T4 그룹</div>
-  <div class="bench" id="bench-t4"></div>
+  <div class="benchWrapper">
+    <div class="benchGroup" id="benchT3">
+      <div class="benchTitle">T3 그룹</div>
+    </div>
+    <div class="benchGroup" id="benchT4">
+      <div class="benchTitle">T4 그룹</div>
+    </div>
+  </div>
 
   <script>
     let players = [];
@@ -76,26 +102,23 @@
     fetch('players.json')
       .then(res => res.json())
       .then(json => {
-        players = json.map(p => {
-          const div = document.createElement('div');
-          div.className = 'player';
-          div.textContent = p.nick;
-          div.dataset.nick = p.nick;
-          div.dataset.grade = p.grade;
-          return div;
-        });
+        players = json;
         renderBench();
         enableDropZones();
       });
 
     function renderBench() {
-      const t3 = document.getElementById('bench-t3');
-      const t4 = document.getElementById('bench-t4');
-      t3.innerHTML = '';
-      t4.innerHTML = '';
-      players.forEach(player => {
-        if (player.dataset.grade === 'T3') t3.appendChild(player);
-        else if (player.dataset.grade === 'T4') t4.appendChild(player);
+      const benchT3 = document.getElementById('benchT3');
+      const benchT4 = document.getElementById('benchT4');
+      benchT3.innerHTML += ''; // Clear only inner content (not title)
+      benchT4.innerHTML += '';
+      players.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'player';
+        div.textContent = p.nick;
+        div.dataset.nick = p.nick;
+        if (p.grade === 'T3') benchT3.appendChild(div);
+        else if (p.grade === 'T4') benchT4.appendChild(div);
       });
     }
 
@@ -110,11 +133,12 @@
         });
       });
 
-      Sortable.create(document.getElementById('bench-t3'), {
+      Sortable.create(document.getElementById('benchT3'), {
         group: 'shared',
         animation: 150
       });
-      Sortable.create(document.getElementById('bench-t4'), {
+
+      Sortable.create(document.getElementById('benchT4'), {
         group: 'shared',
         animation: 150
       });
