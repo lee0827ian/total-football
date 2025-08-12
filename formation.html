@@ -24,10 +24,9 @@
     <div class="bench-area">
         <div class="controls" style="text-align: center; margin-bottom: 15px;">
             <!-- 선수 추가 UI -->
-            <div style="margin-bottom: 15px;">
-                <input type="text" id="newPlayerName" placeholder="새 선수 이름" 
-                       style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 150px; margin-right: 10px;">
-                <select id="newPlayerGrade" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-right: 10px;">
+            <div class="add-player-controls">
+                <input type="text" id="newPlayerName" placeholder="새 선수 이름" style="width: 150px;">
+                <select id="newPlayerGrade">
                     <option value="T3">T3</option>
                     <option value="T4">T4</option>
                 </select>
@@ -35,51 +34,60 @@
             </div>
             <!-- 검색 UI -->
             <div>
-                <input type="text" id="playerSearch" placeholder="선수 검색..." 
-                       style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 200px; margin-right: 10px;">
+                <input type="text" id="playerSearch" placeholder="선수 검색..." style="width: 200px;">
                 <button onclick="searchPlayer()">🔍 검색</button>
                 <button onclick="clearSearch()">❌ 초기화</button>
             </div>
         </div>
-        <div class="bench-container">
-            <div class="bench-group" id="t3Bench">
-                <h3>T3 선수단 <span class="player-count" id="t3Count">(0명)</span></h3>
-                <div class="players-container"></div>
-            </div>
-            <div class="bench-group" id="t4Bench">
-                <h3>T4 선수단 <span class="player-count" id="t4Count">(0명)</span></h3>
-                <div class="players-container"></div>
-            </div>
-        </div>
+        // ...existing bench-container...
     </div>
 
     <script>
-        let players = [];
+        // ...existing code until enableDropZones...
 
-        fetch('players.json')
-            .then(res => res.json())
-            .then(json => {
-                console.log('데이터 로드 성공:', json.length + '명의 선수 데이터');
-                initializePlayers(json);
-            })
-            .catch(err => {
-                console.error('players.json 파일을 찾을 수 없습니다:', err);
-                alert('선수 데이터를 불러올 수 없습니다. players.json 파일을 확인해주세요.');
+        function enableDropZones() {
+            document.querySelectorAll('.formation-field .line').forEach(zone => {
+                const emptyZone = zone.querySelector('.empty-zone');
+                const field = zone.closest('.formation-field');
+                
+                Sortable.create(zone, {
+                    group: 'shared',
+                    animation: 200,
+                    onAdd: function(evt) {
+                        // 먼저 필드 제한 확인
+                        if (!checkFieldLimit(field)) {
+                            const player = evt.item;
+                            const grade = player.dataset.grade;
+                            const targetBench = grade === 'T3' ? 
+                                document.querySelector('#t3Bench .players-container') : 
+                                document.querySelector('#t4Bench .players-container');
+                            targetBench.appendChild(player);
+                            return;
+                        }
+
+                        if (emptyZone) emptyZone.style.display = 'none';
+                        limitPlayers(zone);
+                        updateStats();
+                    },
+                    onRemove: function() {
+                        if (zone.querySelectorAll('.player').length === 0 && emptyZone) {
+                            emptyZone.style.display = 'block';
+                        }
+                        updateStats();
+                    }
+                });
             });
 
-        function initializePlayers(data) {
-            players = data.filter(p => p.grade === 'T3' || p.grade === 'T4').map(p => {
-                const div = document.createElement('div');
-                div.className = `player ${p.grade.toLowerCase()}`;
-                div.textContent = p.nick;
-                div.dataset.nick = p.nick;
-                div.dataset.grade = p.grade;
-                return { ...p, element: div };
-            });
-            
-            renderBench();
-            enableDropZones();
-            updateStats();
+            // ...existing bench containers code...
+        }
+
+        function checkFieldLimit(field) {
+            const playerCount = field.querySelectorAll('.player').length;
+            if (playerCount >= 11) {
+                alert('한 팀당 최대 11명까지만 배치할 수 있습니다.');
+                return false;
+            }
+            return true;
         }
 
         function addNewPlayer() {
@@ -121,22 +129,23 @@
             document.getElementById('newPlayerName').value = '';
         }
 
-        // ...existing functions...
+        function updateStats() {
+            // ...existing updateStats code...
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // 기존 검색 이벤트
-            document.getElementById('playerSearch').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchPlayer();
-                }
+            // 각 필드별 카운트 업데이트
+            ['field1', 'field2', 'field3'].forEach(fieldId => {
+                const count = document.querySelector(`#${fieldId}`).querySelectorAll('.player').length;
+                document.querySelector(`#${fieldId}Count`).textContent = `(${count}/11명)`;
             });
+        }
 
-            // 선수 추가 이벤트
-            document.getElementById('newPlayerName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addNewPlayer();
-                }
-            });
+        // ...existing event listeners...
+
+        // 선수 추가 Enter 키 이벤트
+        document.getElementById('newPlayerName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addNewPlayer();
+            }
         });
     </script>
 </body>
