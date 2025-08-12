@@ -4,38 +4,240 @@
     <meta charset="UTF-8">
     <title>포메이션 짜기</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <style>
-        /* ... 이전 CSS 코드는 동일하게 유지 ... */
-        /* fields-container만 수정 */
-        .fields-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
-            max-width: 1800px;
-            margin: 0 auto;
-        }
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #2d5a27 0%, #4a8f47 100%);
+        color: white;
+        min-height: 100vh;
+    }
 
-        .formation-field {
-            position: relative;
-            background: 
-                linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.4) 49%, rgba(255,255,255,0.4) 51%, transparent 51%),
-                linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.2) 24%, rgba(255,255,255,0.2) 26%, transparent 26%),
-                linear-gradient(0deg, transparent 49%, rgba(255,255,255,0.2) 49%, rgba(255,255,255,0.2) 51%, transparent 51%),
-                linear-gradient(0deg, transparent 74%, rgba(255,255,255,0.2) 74%, rgba(255,255,255,0.2) 76%, transparent 76%),
-                #2d5a27;
-            background-size: auto, auto, auto, auto, auto;
-            height: 50vh;
-            border: 3px solid white;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            overflow: hidden;
+    .header {
+        text-align: center;
+        padding: 20px;
+        background: rgba(0,0,0,0.3);
+    }
+
+    .header h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #fff;
+    }
+
+    .controls {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .controls button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+        margin: 0 5px;
+        font-size: 14px;
+    }
+
+    .controls button:hover {
+        background-color: #45a049;
+    }
+
+    .fields-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 20px;
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+
+    .formation-field {
+        position: relative;
+        background: 
+            linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.4) 49%, rgba(255,255,255,0.4) 51%, transparent 51%),
+            linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.2) 24%, rgba(255,255,255,0.2) 26%, transparent 26%),
+            linear-gradient(0deg, transparent 49%, rgba(255,255,255,0.2) 49%, rgba(255,255,255,0.2) 51%, transparent 51%),
+            linear-gradient(0deg, transparent 74%, rgba(255,255,255,0.2) 74%, rgba(255,255,255,0.2) 76%, transparent 76%),
+            #2d5a27;
+        background-size: auto, auto, auto, auto, auto;
+        height: 50vh;
+        border: 3px solid white;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        overflow: hidden;
+    }
+
+    .field-title {
+        color: white;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .line {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        min-height: 80px;
+        flex-wrap: wrap;
+        position: relative;
+    }
+
+    .gk {
+        background: rgba(255,255,0,0.3);
+        border-radius: 20px;
+        border: 2px dashed rgba(255,255,255,0.8);
+        backdrop-filter: blur(2px);
+    }
+
+    .defense {
+        background: rgba(255,0,0,0.2);
+        border-radius: 15px;
+        border: 2px dashed rgba(255,255,255,0.6);
+        backdrop-filter: blur(2px);
+    }
+
+    .mid1, .mid2 {
+        background: rgba(0,255,0,0.2);
+        border-radius: 15px;
+        border: 2px dashed rgba(255,255,255,0.6);
+        backdrop-filter: blur(2px);
+    }
+
+    .attack {
+        background: rgba(0,0,255,0.2);
+        border-radius: 15px;
+        border: 2px dashed rgba(255,255,255,0.6);
+        backdrop-filter: blur(2px);
+    }
+
+    .player {
+        background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+        color: #333;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: grab;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        border: 2px solid #ddd;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .player:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .player.t3 {
+        border-color: #2196F3;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    }
+
+    .player.t4 {
+        border-color: #FF9800;
+        background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+    }
+
+    .bench-area {
+        background: rgba(255,255,255,0.95);
+        padding: 20px;
+        margin: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .bench-container {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .bench-group {
+        flex: 1;
+        min-width: 300px;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        min-height: 200px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    #t3Bench { 
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%);
+        border: 2px solid #2196F3;
+    }
+
+    #t4Bench { 
+        background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 50%);
+        border: 2px solid #FF9800;
+    }
+
+    .bench-group h3 {
+        text-align: center;
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .bench-group .players-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .position-label {
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .stats {
+        text-align: center;
+        margin: 15px 0;
+        background: rgba(0,0,0,0.2);
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .empty-zone {
+        color: rgba(255,255,255,0.9);
+        font-style: italic;
+        font-size: 14px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        font-weight: 500;
+    }
+
+    @media (max-width: 1200px) {
+        .fields-container {
+            grid-template-columns: 1fr;
         }
-    </style>
+    }
+</style>
 </head>
 <body>
     <div class="header">
@@ -361,3 +563,4 @@
     </script>
 </body>
 </html>
+
