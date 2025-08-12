@@ -1,247 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>T4매치 포메이션</title>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<style>
-    body {
-        margin: 0;
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #2d5a27 0%, #4a8f47 100%);
-        color: white;
-        min-height: 100vh;
-    }
-
-    .header {
-        text-align: center;
-        padding: 20px;
-        background: rgba(0,0,0,0.3);
-    }
-
-    .header h1 {
-        margin: 0;
-        font-size: 28px;
-        color: #fff;
-    }
-
-    .controls {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .controls button {
-        padding: 8px 16px;
-        border: none;
-        border-radius: 8px;
-        background-color: #4caf50;
-        color: white;
-        cursor: pointer;
-        margin: 0 5px;
-        font-size: 14px;
-    }
-
-    .controls button:hover {
-        background-color: #45a049;
-    }
-
-    .fields-container {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        padding: 20px;
-        max-width: 1800px;
-        margin: 0 auto;
-    }
-
-    .formation-field {
-        position: relative;
-        background: 
-            linear-gradient(90deg, transparent 49%, rgba(255,255,255,0.4) 49%, rgba(255,255,255,0.4) 51%, transparent 51%),
-            linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.2) 24%, rgba(255,255,255,0.2) 26%, transparent 26%),
-            linear-gradient(0deg, transparent 49%, rgba(255,255,255,0.2) 49%, rgba(255,255,255,0.2) 51%, transparent 51%),
-            linear-gradient(0deg, transparent 74%, rgba(255,255,255,0.2) 74%, rgba(255,255,255,0.2) 76%, transparent 76%),
-            #2d5a27;
-        background-size: auto, auto, auto, auto, auto;
-        height: 50vh;
-        border: 3px solid white;
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 15px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        overflow: hidden;
-    }
-
-    .field-title {
-        color: white;
-        text-align: center;
-        margin-bottom: 10px;
-        font-size: 1.2em;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    }
-
-    .line {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        min-height: 80px;
-        flex-wrap: wrap;
-        position: relative;
-    }
-
-    .gk {
-        background: rgba(255,255,0,0.3);
-        border-radius: 20px;
-        border: 2px dashed rgba(255,255,255,0.8);
-        backdrop-filter: blur(2px);
-    }
-
-    .defense {
-        background: rgba(255,0,0,0.2);
-        border-radius: 15px;
-        border: 2px dashed rgba(255,255,255,0.6);
-        backdrop-filter: blur(2px);
-    }
-
-    .mid1, .mid2 {
-        background: rgba(0,255,0,0.2);
-        border-radius: 15px;
-        border: 2px dashed rgba(255,255,255,0.6);
-        backdrop-filter: blur(2px);
-    }
-
-    .attack {
-        background: rgba(0,0,255,0.2);
-        border-radius: 15px;
-        border: 2px dashed rgba(255,255,255,0.6);
-        backdrop-filter: blur(2px);
-    }
-
-    .player {
-        background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
-        color: #333;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: grab;
-        white-space: nowrap;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        border: 2px solid #ddd;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .player:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
-    .player.t3 {
-        border-color: #2196F3;
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    }
-
-    .player.t4 {
-        border-color: #FF9800;
-        background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
-    }
-
-    .bench-area {
-        background: rgba(255,255,255,0.95);
-        padding: 20px;
-        margin: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .bench-container {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-
-    .bench-group {
-        flex: 1;
-        min-width: 300px;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        min-height: 200px;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    #t3Bench { 
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%);
-        border: 2px solid #2196F3;
-    }
-
-    #t4Bench { 
-        background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 50%);
-        border: 2px solid #FF9800;
-    }
-
-    .bench-group h3 {
-        text-align: center;
-        margin: 0 0 15px 0;
-        color: #333;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .bench-group .players-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        justify-content: center;
-    }
-
-    .position-label {
-        position: absolute;
-        top: -25px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0,0,0,0.8);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 600;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .stats {
-        text-align: center;
-        margin: 15px 0;
-        background: rgba(0,0,0,0.2);
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    .empty-zone {
-        color: rgba(255,255,255,0.9);
-        font-style: italic;
-        font-size: 14px;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
-        font-weight: 500;
-    }
-
-    @media (max-width: 1200px) {
-        .fields-container {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+    // ...existing code...
 </head>
 <body>
     <div class="header">
-        <h1>⚽ T4매치 포메이션</h1>
+        <h1>⚽ 포메이션 편집기</h1>
         <div class="controls">
             <button onclick="location.href='index.html'">← 메인으로</button>
             <button onclick="resetFormation()">🔄 초기화</button>
@@ -254,94 +18,28 @@
     </div>
 
     <div class="fields-container">
-        <!-- A조 -->
-        <div>
-            <div class="field-title">A조 <span id="field1Count">(0/11명)</span></div>
-            <div id="field1" class="formation-field">
-                <div class="attack line" data-max="3">
-                    <div class="position-label">공격 (최대 3명)</div>
-                    <div class="empty-zone">공격수를 드래그하세요</div>
-                </div>
-                <div class="mid1 line" data-max="3">
-                    <div class="position-label">미드필더 상 (최대 3명)</div>
-                    <div class="empty-zone">미드필더를 드래그하세요</div>
-                </div>
-                <div class="mid2 line" data-max="3">
-                    <div class="position-label">미드필더 하 (최대 3명)</div>
-                    <div class="empty-zone">미드필더를 드래그하세요</div>
-                </div>
-                <div class="defense line" data-max="4">
-                    <div class="position-label">수비 (최대 4명)</div>
-                    <div class="empty-zone">수비수를 드래그하세요</div>
-                </div>
-                <div class="gk line" data-max="1">
-                    <div class="position-label">골키퍼 (1명)</div>
-                    <div class="empty-zone">골키퍼를 드래그하세요</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- B조 -->
-        <div>
-            <div class="field-title">B조 <span id="field2Count">(0/11명)</span></div>
-            <div id="field2" class="formation-field">
-                <div class="attack line" data-max="3">
-                    <div class="position-label">공격 (최대 3명)</div>
-                    <div class="empty-zone">공격수를 드래그하세요</div>
-                </div>
-                <div class="mid1 line" data-max="3">
-                    <div class="position-label">미드필더 상 (최대 3명)</div>
-                    <div class="empty-zone">미드필더를 드래그하세요</div>
-                </div>
-                <div class="mid2 line" data-max="3">
-                    <div class="position-label">미드필더 하 (최대 3명)</div>
-                    <div class="empty-zone">미드필더를 드래그하세요</div>
-                </div>
-                <div class="defense line" data-max="4">
-                    <div class="position-label">수비 (최대 4명)</div>
-                    <div class="empty-zone">수비수를 드래그하세요</div>
-                </div>
-                <div class="gk line" data-max="1">
-                    <div class="position-label">골키퍼 (1명)</div>
-                    <div class="empty-zone">골키퍼를 드래그하세요</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- C조 -->
-        <div>
-            <div class="field-title">C조 <span id="field3Count">(0/11명)</span></div>
-            <div id="field3" class="formation-field">
-                <div class="attack line" data-max="3">
-                    <div class="position-label">공격 (최대 3명)</div>
-                    <div class="empty-zone">공격수를 드래그하세요</div>
-                </div>
-                <div class="mid1 line" data-max="3">
-                    <div class="position-label">미드필더 상 (최대 3명)</div>
-                    <div class="empty-zone">미드필더를 드래그하세요</div>
-                </div>
-                <div class="mid2 line" data-max="3">
-                    <div class="position-label">미드필더 하 (최대 3명)</div>
-                    <div class="empty-zone">미드필더를 드래그하세요</div>
-                </div>
-                <div class="defense line" data-max="4">
-                    <div class="position-label">수비 (최대 4명)</div>
-                    <div class="empty-zone">수비수를 드래그하세요</div>
-                </div>
-                <div class="gk line" data-max="1">
-                    <div class="position-label">골키퍼 (1명)</div>
-                    <div class="empty-zone">골키퍼를 드래그하세요</div>
-                </div>
-            </div>
-        </div>
+        // ...existing fields container code...
     </div>
 
     <div class="bench-area">
         <div class="controls" style="text-align: center; margin-bottom: 15px;">
-            <input type="text" id="playerSearch" placeholder="선수 검색..." 
-                   style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 200px; margin-right: 10px;">
-            <button onclick="searchPlayer()">🔍 검색</button>
-            <button onclick="clearSearch()">❌ 초기화</button>
+            <!-- 선수 추가 UI -->
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="newPlayerName" placeholder="새 선수 이름" 
+                       style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 150px; margin-right: 10px;">
+                <select id="newPlayerGrade" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-right: 10px;">
+                    <option value="T3">T3</option>
+                    <option value="T4">T4</option>
+                </select>
+                <button onclick="addNewPlayer()">➕ 선수 추가</button>
+            </div>
+            <!-- 검색 UI -->
+            <div>
+                <input type="text" id="playerSearch" placeholder="선수 검색..." 
+                       style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 200px; margin-right: 10px;">
+                <button onclick="searchPlayer()">🔍 검색</button>
+                <button onclick="clearSearch()">❌ 초기화</button>
+            </div>
         </div>
         <div class="bench-container">
             <div class="bench-group" id="t3Bench">
@@ -384,184 +82,62 @@
             updateStats();
         }
 
-        function renderBench() {
-            const t3Container = document.querySelector('#t3Bench .players-container');
-            const t4Container = document.querySelector('#t4Bench .players-container');
+        function addNewPlayer() {
+            const name = document.getElementById('newPlayerName').value.trim();
+            const grade = document.getElementById('newPlayerGrade').value;
             
-            t3Container.innerHTML = '';
-            t4Container.innerHTML = '';
-            
-            players.forEach(p => {
-                if (p.grade === 'T3') {
-                    t3Container.appendChild(p.element.cloneNode(true));
-                } else if (p.grade === 'T4') {
-                    t4Container.appendChild(p.element.cloneNode(true));
-                }
-            });
-            
-            updateStats();
-        }
-
-        function enableDropZones() {
-            document.querySelectorAll('.formation-field .line').forEach(zone => {
-                const emptyZone = zone.querySelector('.empty-zone');
-                
-                Sortable.create(zone, {
-                    group: 'shared',
-                    animation: 200,
-                    onAdd: function(evt) {
-                        const field = zone.closest('.formation-field');
-                        if (!checkFieldLimit(field)) {
-                            const player = evt.item;
-                            const grade = player.dataset.grade;
-                            const targetBench = grade === 'T3' ? 
-                                document.querySelector('#t3Bench .players-container') : 
-                                document.querySelector('#t4Bench .players-container');
-                            targetBench.appendChild(player);
-                            return;
-                        }
-                        
-                        if (emptyZone) emptyZone.style.display = 'none';
-                        limitPlayers(zone);
-                        updateStats();
-                    },
-                    onRemove: function() {
-                        if (zone.querySelectorAll('.player').length === 0 && emptyZone) {
-                            emptyZone.style.display = 'block';
-                        }
-                        updateStats();
-                    }
-                });
-            });
-
-            const benchContainers = document.querySelectorAll('.bench-group .players-container');
-            benchContainers.forEach(container => {
-                Sortable.create(container, {
-                    group: 'shared',
-                    animation: 200,
-                    onAdd: updateStats,
-                    onRemove: updateStats
-                });
-            });
-        }
-
-        function checkFieldLimit(field) {
-            const playerCount = field.querySelectorAll('.player').length;
-            if (playerCount >= 11) {
-                alert('한 포메이션당 최대 11명까지만 배치할 수 있습니다.');
-                return false;
-            }
-            return true;
-        }
-
-        function limitPlayers(zone) {
-            const max = parseInt(zone.dataset.max);
-            const playerElements = zone.querySelectorAll('.player');
-            
-            if (playerElements.length > max) {
-                const lastPlayer = playerElements[playerElements.length - 1];
-                const grade = lastPlayer.dataset.grade;
-                const targetBench = grade === 'T3' ? 
-                    document.querySelector('#t3Bench .players-container') : 
-                    document.querySelector('#t4Bench .players-container');
-                
-                targetBench.appendChild(lastPlayer);
-                alert(`해당 포지션에는 최대 ${max}명까지만 배치할 수 있습니다.`);
-            }
-        }
-
-        function updateStats() {
-            const fieldPlayers = document.querySelectorAll('.formation-field .player').length;
-            const t3Players = document.querySelectorAll('#t3Bench .player').length;
-            const t4Players = document.querySelectorAll('#t4Bench .player').length;
-            
-            document.getElementById('fieldCount').textContent = fieldPlayers;
-            document.getElementById('t3Count').textContent = `(${t3Players}명)`;
-            document.getElementById('t4Count').textContent = `(${t4Players}명)`;
-
-            // 각 필드별 카운트 업데이트
-            ['field1', 'field2', 'field3'].forEach(fieldId => {
-                const count = document.querySelector(`#${fieldId}`).querySelectorAll('.player').length;
-                document.querySelector(`#${fieldId}Count`).textContent = `(${count}/11명)`;
-            });
-
-            // Empty zone 표시 업데이트
-            document.querySelectorAll('.formation-field .line').forEach(zone => {
-                const emptyZone = zone.querySelector('.empty-zone');
-                if (emptyZone) {
-                    emptyZone.style.display = 
-                        zone.querySelectorAll('.player').length > 0 ? 'none' : 'block';
-                }
-            });
-        }
-
-        function resetFormation() {
-            if (confirm('포메이션을 초기화하시겠습니까?')) {
-                document.querySelectorAll('.formation-field .player').forEach(player => {
-                    const grade = player.dataset.grade;
-                    const targetBench = grade === 'T3' ? 
-                        document.querySelector('#t3Bench .players-container') : 
-                        document.querySelector('#t4Bench .players-container');
-                    targetBench.appendChild(player);
-                });
-                updateStats();
-            }
-        }
-
-        function saveFormation() {
-            const formation = {
-                fieldA: Array.from(document.querySelectorAll('#field1 .player')).map(p => ({
-                    nick: p.dataset.nick,
-                    position: p.closest('.line').className.split(' ')[0]
-                })),
-                fieldB: Array.from(document.querySelectorAll('#field2 .player')).map(p => ({
-                    nick: p.dataset.nick,
-                    position: p.closest('.line').className.split(' ')[0]
-                })),
-                fieldC: Array.from(document.querySelectorAll('#field3 .player')).map(p => ({
-                    nick: p.dataset.nick,
-                    position: p.closest('.line').className.split(' ')[0]
-                }))
-            };
-            
-            console.log('저장된 포메이션:', formation);
-            alert('포메이션이 저장되었습니다!\n(개발자 도구 콘솔에서 확인 가능)');
-        }
-
-        function searchPlayer() {
-            const keyword = document.getElementById('playerSearch').value.trim().toLowerCase();
-            if (!keyword) {
-                clearSearch();
+            if (!name) {
+                alert('선수 이름을 입력해주세요.');
                 return;
             }
 
-            document.querySelectorAll('.bench-group .player').forEach(player => {
-                if (player.textContent.toLowerCase().includes(keyword)) {
-                    player.style.display = 'inline-block';
-                    player.style.backgroundColor = '#ffeb3b';
-                } else {
-                    player.style.display = 'none';
-                }
-            });
+            // 중복 이름 체크
+            const isDuplicate = players.some(p => p.nick.toLowerCase() === name.toLowerCase());
+            if (isDuplicate) {
+                alert('이미 존재하는 선수 이름입니다.');
+                return;
+            }
+
+            // 새 선수 객체 생성
+            const div = document.createElement('div');
+            div.className = `player ${grade.toLowerCase()}`;
+            div.textContent = name;
+            div.dataset.nick = name;
+            div.dataset.grade = grade;
+
+            const newPlayer = {
+                nick: name,
+                grade: grade,
+                element: div
+            };
+
+            // players 배열에 추가
+            players.push(newPlayer);
+
+            // UI 갱신
+            renderBench();
+            
+            // 입력 필드 초기화
+            document.getElementById('newPlayerName').value = '';
         }
 
-        function clearSearch() {
-            document.getElementById('playerSearch').value = '';
-            document.querySelectorAll('.bench-group .player').forEach(player => {
-                player.style.display = 'inline-block';
-                player.style.backgroundColor = '';
-            });
-        }
+        // ...existing functions...
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 기존 검색 이벤트
             document.getElementById('playerSearch').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchPlayer();
+                }
+            });
+
+            // 선수 추가 이벤트
+            document.getElementById('newPlayerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addNewPlayer();
                 }
             });
         });
     </script>
 </body>
 </html>
-
-
