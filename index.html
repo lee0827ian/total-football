@@ -1,185 +1,235 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>스페셜매치 등급표</title>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-      background-color: #f9f9f9;
-      color: #333;
-    }
-    h2 {
-      margin-top: 40px;
-      border-bottom: 2px solid #e0e0e0;
-      padding-bottom: 10px;
-      font-size: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .group {
-      background: #fff;
-      padding: 15px;
-      margin-bottom: 30px;
-      border-radius: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      min-height: 40px;
-    }
-    .player {
-      padding: 8px 14px;
-      background-color: #e6f0ff;
-      border-radius: 12px;
-      cursor: grab;
-      user-select: none;
-      font-size: 14px;
-      white-space: nowrap;
-      transition: background-color 0.2s;
-    }
-    .player:hover {
-      background-color: #d0e7ff;
-    }
-    .controls {
-      margin-bottom: 20px;
-    }
-    input[type="text"], input[type="password"], select {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-right: 10px;
-    }
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      background-color: #4caf50;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .hidden {
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>스페셜매치 등급표</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+            max-width: 1200px;  /* 최대 너비 설정 */
+            margin: 0 auto;     /* 중앙 정렬 */
+        }
+        h2 {
+            margin-top: 30px;   /* 여백 축소 */
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-size: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            grid-column: 1 / -1;  /* 그리드 전체 너비 */
+        }
+        .group {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 20px;  /* 여백 축소 */
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            display: grid;        /* 그리드 레이아웃 적용 */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            min-height: 40px;
+        }
+        .player {
+            padding: 8px 12px;    /* 패딩 축소 */
+            background-color: #e6f0ff;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            font-size: 0.9rem;    /* 폰트 크기 축소 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: transform 0.2s;
+        }
+        .player:hover {
+            transform: translateX(5px);
+            background-color: #d0e7ff;
+        }
+        .controls {
+            margin-bottom: 15px;  /* 여백 축소 */
+        }
+        input[type="text"], input[type="password"], select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+        .empty-group {  /* 빈 등급 숨기기 */
+            display: none;
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .group {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            body {
+                padding: 10px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="controls" style="margin-bottom: 10px;">
-    <button onclick="location.href='formation.html'">⚽ 포메이션 짜기</button>
-  </div>
-  
-  <div class="controls">
-    <input type="text" id="search" placeholder="닉네임 검색">
-  </div>
+    <div class="controls">
+        <button onclick="location.href='formation.html'">⚽ 포메이션 짜기</button>
+    </div>
+    
+    <div class="controls">
+        <input type="text" id="search" placeholder="닉네임 검색">
+    </div>
 
-  <div id="groupsContainer"></div>
+    <div id="groupsContainer"></div>
 
-  <div class="controls" style="margin-top: 40px;">
-    <input type="password" id="adminPass" placeholder="운영자 비밀번호 입력">
-    <button onclick="toggleAdmin()">운영자 모드 전환</button>
-  </div>
+    <div class="controls" style="margin-top: 30px;">
+        <input type="password" id="adminPass" placeholder="운영자 비밀번호 입력">
+        <button onclick="toggleAdmin()">운영자 모드 전환</button>
+    </div>
 
-  <div id="addPlayerSection" class="controls hidden">
-    <input type="text" id="newNick" placeholder="신규 닉네임">
-    <select id="newGrade">
-      <option value="T1">T1</option>
-      <option value="T2">T2</option>
-      <option value="T3">T3</option>
-      <option value="T4">T4</option>
-    </select>
-    <button onclick="addPlayer()">추가</button>
-  </div>
+    <div id="addPlayerSection" class="controls hidden">
+        <input type="text" id="newNick" placeholder="신규 닉네임">
+        <select id="newGrade">
+            <option value="T1">T1</option>
+            <option value="T2">T2</option>
+            <option value="T3">T3</option>
+            <option value="T4">T4</option>
+        </select>
+        <button onclick="addPlayer()">추가</button>
+    </div>
 
-  <script>
-    let data = [];
-    let isAdmin = false;
-    const allGrades = ['T1', 'T2', 'T3', 'T4'];
-    const groupsContainer = document.getElementById('groupsContainer');
+    <script>
+        let data = [];
+        let isAdmin = false;
+        const allGrades = ['T1', 'T2', 'T3', 'T4'];
+        const groupsContainer = document.getElementById('groupsContainer');
 
-    function render() {
-      groupsContainer.innerHTML = '';
-      allGrades.forEach(grade => {
-        const title = document.createElement('h2');
-        const count = data.filter(d => d.grade === grade).length;
-        title.innerHTML = `${grade} 그룹 <span style="font-size:14px; color:#888;">(${count}명)</span>`;
+        function render(players = data) {
+            groupsContainer.innerHTML = '';
+            const grouped = groupByGrade(players);
+            
+            allGrades.forEach(grade => {
+                const players = grouped[grade] || [];
+                // T1, T2가 비어있으면 표시하지 않음
+                if (players.length === 0 && (grade === 'T1' || grade === 'T2')) {
+                    return;
+                }
 
-        const group = document.createElement('div');
-        group.className = 'group';
-        group.id = grade;
+                const group = document.createElement('div');
+                group.className = `group ${players.length === 0 ? 'empty-group' : ''}`;
+                group.id = grade;
+                
+                const count = players.length;
+                group.innerHTML = `
+                    <h2>
+                        ${grade}
+                        <span style="font-size:14px; color:#888;">(${count}명)</span>
+                    </h2>
+                `;
+                
+                players.forEach(player => {
+                    const div = document.createElement('div');
+                    div.className = 'player';
+                    div.textContent = player.nick;
+                    div.dataset.nick = player.nick;
+                    group.appendChild(div);
+                });
 
-        data.filter(d => d.grade === grade).forEach(player => {
-          const div = document.createElement('div');
-          div.className = 'player';
-          div.textContent = player.nick;
-          div.dataset.nick = player.nick;
-          group.appendChild(div);
-        });
+                groupsContainer.appendChild(group);
 
-        groupsContainer.appendChild(title);
-        groupsContainer.appendChild(group);
-
-        Sortable.create(group, {
-          group: 'shared',
-          animation: 150,
-          disabled: !isAdmin,
-          onAdd: function (evt) {
-            const nick = evt.item.dataset.nick;
-            const newGrade = evt.to.id;
-            const p = data.find(d => d.nick === nick);
-            if (p) p.grade = newGrade;
-            render();
-          }
-        });
-      });
-      document.getElementById('addPlayerSection').classList.toggle('hidden', !isAdmin);
-    }
-
-    function addPlayer() {
-      const nick = document.getElementById('newNick').value.trim();
-      const grade = document.getElementById('newGrade').value;
-      if (!nick || data.some(d => d.nick === nick)) return alert("닉네임을 입력하거나 이미 존재합니다");
-      data.push({ nick, grade });
-      document.getElementById('newNick').value = '';
-      render();
-    }
-
-    function toggleAdmin() {
-      const pw = document.getElementById('adminPass').value;
-      if (pw === '5760') {
-        isAdmin = !isAdmin;
-        render();
-      } else {
-        alert('비밀번호가 틀렸습니다');
-      }
-    }
-
-    document.getElementById('search').addEventListener('input', function(e) {
-      const keyword = e.target.value.trim();
-      document.querySelectorAll('.player').forEach(div => {
-        if (!keyword || div.textContent.includes(keyword)) {
-          div.classList.remove('hidden');
-        } else {
-          div.classList.add('hidden');
+                new Sortable(group, {
+                    group: 'shared',
+                    animation: 150,
+                    disabled: !isAdmin,
+                    onAdd: function(evt) {
+                        const nick = evt.item.dataset.nick;
+                        const newGrade = evt.to.id;
+                        const player = data.find(p => p.nick === nick);
+                        if (player) {
+                            player.grade = newGrade;
+                            render();
+                        }
+                    }
+                });
+            });
         }
-      });
-    });
 
-    fetch('players.json')
-      .then(res => res.json())
-      .then(json => {
-        data = json;
-        render();
-      })
-      .catch(err => {
-        alert('데이터를 불러오지 못했습니다.');
-        console.error(err);
-      });
-  </script>
+        function addPlayer() {
+            const nick = document.getElementById('newNick').value.trim();
+            const grade = document.getElementById('newGrade').value;
+            if (!nick || data.some(d => d.nick === nick)) {
+                alert("닉네임을 입력하거나 이미 존재하는 닉네임입니다.");
+                return;
+            }
+            data.push({ nick, grade });
+            document.getElementById('newNick').value = '';
+            render();
+        }
+
+        function toggleAdmin() {
+            const pw = document.getElementById('adminPass').value;
+            if (pw === '5760') {
+                isAdmin = !isAdmin;
+                document.getElementById('addPlayerSection').classList.toggle('hidden');
+                document.getElementById('adminPass').value = '';
+                render();
+            } else {
+                alert('비밀번호가 틀렸습니다');
+            }
+        }
+
+        function groupByGrade(players) {
+            return players.reduce((groups, player) => {
+                if (!groups[player.grade]) {
+                    groups[player.grade] = [];
+                }
+                groups[player.grade].push(player);
+                return groups;
+            }, {});
+        }
+
+        document.getElementById('search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = data.filter(player => 
+                player.nick.toLowerCase().includes(searchTerm)
+            );
+            render(filtered);
+        });
+
+        fetch('players.json')
+            .then(res => res.json())
+            .then(json => {
+                data = json;
+                render();
+            })
+            .catch(err => {
+                console.error('데이터 로드 실패:', err);
+                groupsContainer.innerHTML = `
+                    <p style="color: red; text-align: center; padding: 20px;">
+                        데이터를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.
+                    </p>`;
+            });
+    </script>
 </body>
 </html>
