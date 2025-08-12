@@ -5,116 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>스페셜매치 등급표</title>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            padding: 20px;
-            background-color: #f0f2f5;
-            color: #1a1a1a;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #1557b0;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 10px 15px;
-            border: 1px solid #dfe1e5;
-            border-radius: 8px;
-            font-size: 14px;
-            flex: 1;
-        }
-
-        .group {
-            background: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        h2 {
-            color: #1a73e8;
-            font-size: 1.5rem;
-            margin: 0 0 15px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player {
-            background: #f8f9fa;
-            padding: 12px 15px;
-            margin: 8px 0;
-            border-radius: 8px;
-            cursor: move;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .player:hover {
-            background: #e8f0fe;
-            transform: translateX(5px);
-        }
-
-        .player-count {
-            background: #e8f0fe;
-            color: #1a73e8;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.9em;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-        }
+        /* ...existing styles... */
     </style>
 </head>
 <body>
@@ -150,11 +44,14 @@
     </div>
 
     <script>
-        // ...existing code...
-        
-        function render() {
+        let data = [];
+        let isAdmin = false;
+        const allGrades = ['T1', 'T2', 'T3', 'T4'];
+        const groupsContainer = document.getElementById('groupsContainer');
+
+        function render(players = data) {
             groupsContainer.innerHTML = '';
-            const grouped = groupByGrade(data);
+            const grouped = groupByGrade(players);
             
             allGrades.forEach(grade => {
                 if (grouped[grade]) {
@@ -193,7 +90,91 @@
                 }
             });
         }
-        // ...existing code...
+
+        function handleDrop(evt) {
+            if (!isAdmin) {
+                render();
+                return;
+            }
+            
+            const playerName = evt.item.textContent.trim();
+            const newGrade = evt.to.parentNode.querySelector('h2').textContent.trim().split(' ')[0];
+            
+            const playerIndex = data.findIndex(p => p.nick === playerName);
+            if (playerIndex !== -1) {
+                data[playerIndex].grade = newGrade;
+                saveData();
+            }
+        }
+
+        function addPlayer() {
+            const nick = document.getElementById('newNick').value.trim();
+            const grade = document.getElementById('newGrade').value;
+            
+            if (!nick || !grade) return;
+            
+            data.push({ nick, grade });
+            saveData();
+            document.getElementById('newNick').value = '';
+        }
+
+        function saveData() {
+            localStorage.setItem('players', JSON.stringify(data));
+            render();
+        }
+
+        function toggleAdmin() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === '5760') {
+                isAdmin = !isAdmin;
+                document.getElementById('addPlayerSection').classList.toggle('hidden');
+                document.getElementById('adminPass').value = '';
+            }
+        }
+
+        document.getElementById('search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = data.filter(player => 
+                player.nick.toLowerCase().includes(searchTerm)
+            );
+            render(filtered);
+        });
+
+        function groupByGrade(players) {
+            return players.reduce((groups, player) => {
+                if (!groups[player.grade]) {
+                    groups[player.grade] = [];
+                }
+                groups[player.grade].push(player);
+                return groups;
+            }, {});
+        }
+
+        // 초기 데이터 로드
+        fetch('players.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('JSON 파일을 불러올 수 없습니다.');
+                }
+                return response.json();
+            })
+            .then(jsonData => {
+                data = jsonData;
+                render();
+                
+                const gradeSelect = document.getElementById('newGrade');
+                allGrades.forEach(grade => {
+                    const option = document.createElement('option');
+                    option.value = grade;
+                    option.textContent = grade;
+                    gradeSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('데이터 로드 실패:', error);
+                groupsContainer.innerHTML = `<p style="color: red; text-align: center; padding: 20px;">
+                    데이터를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.</p>`;
+            });
     </script>
 </body>
 </html>
