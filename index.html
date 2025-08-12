@@ -10,37 +10,37 @@
             padding: 20px;
             background-color: #f9f9f9;
             color: #333;
-            max-width: 1200px;  /* 최대 너비 설정 */
-            margin: 0 auto;     /* 중앙 정렬 */
+            max-width: 1200px;
+            margin: 0 auto;
         }
         h2 {
-            margin-top: 30px;   /* 여백 축소 */
+            margin-top: 30px;
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 10px;
             font-size: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            grid-column: 1 / -1;  /* 그리드 전체 너비 */
+            grid-column: 1 / -1;
         }
         .group {
             background: #fff;
             padding: 15px;
-            margin-bottom: 20px;  /* 여백 축소 */
+            margin-bottom: 20px;
             border-radius: 12px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            display: grid;        /* 그리드 레이아웃 적용 */
+            display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 10px;
             min-height: 40px;
         }
         .player {
-            padding: 8px 12px;    /* 패딩 축소 */
+            padding: 8px 12px;
             background-color: #e6f0ff;
             border-radius: 8px;
             cursor: grab;
             user-select: none;
-            font-size: 0.9rem;    /* 폰트 크기 축소 */
+            font-size: 0.9rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -51,13 +51,14 @@
             background-color: #d0e7ff;
         }
         .controls {
-            margin-bottom: 15px;  /* 여백 축소 */
+            margin-bottom: 15px;
         }
-        input[type="text"], input[type="password"], select {
+        input[type="text"] {
             padding: 8px;
             border-radius: 8px;
             border: 1px solid #ccc;
             margin-right: 10px;
+            width: 200px;
         }
         button {
             padding: 8px 12px;
@@ -71,23 +72,16 @@
         button:hover {
             background-color: #45a049;
         }
-        .hidden {
-            display: none;
-        }
-        .empty-group {  /* 빈 등급 숨기기 */
+        .empty-group {
             display: none;
         }
         
-        /* 반응형 디자인 */
         @media (max-width: 768px) {
             .group {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
             body {
                 padding: 10px;
-            }
-            .controls {
-                flex-direction: column;
             }
         }
     </style>
@@ -103,25 +97,8 @@
 
     <div id="groupsContainer"></div>
 
-    <div class="controls" style="margin-top: 30px;">
-        <input type="password" id="adminPass" placeholder="운영자 비밀번호 입력">
-        <button onclick="toggleAdmin()">운영자 모드 전환</button>
-    </div>
-
-    <div id="addPlayerSection" class="controls hidden">
-        <input type="text" id="newNick" placeholder="신규 닉네임">
-        <select id="newGrade">
-            <option value="T1">T1</option>
-            <option value="T2">T2</option>
-            <option value="T3">T3</option>
-            <option value="T4">T4</option>
-        </select>
-        <button onclick="addPlayer()">추가</button>
-    </div>
-
     <script>
         let data = [];
-        let isAdmin = false;
         const allGrades = ['T1', 'T2', 'T3', 'T4'];
         const groupsContainer = document.getElementById('groupsContainer');
 
@@ -131,7 +108,6 @@
             
             allGrades.forEach(grade => {
                 const players = grouped[grade] || [];
-                // T1, T2가 비어있으면 표시하지 않음
                 if (players.length === 0 && (grade === 'T1' || grade === 'T2')) {
                     return;
                 }
@@ -161,7 +137,6 @@
                 new Sortable(group, {
                     group: 'shared',
                     animation: 150,
-                    disabled: !isAdmin,
                     onAdd: function(evt) {
                         const nick = evt.item.dataset.nick;
                         const newGrade = evt.to.id;
@@ -173,30 +148,6 @@
                     }
                 });
             });
-        }
-
-        function addPlayer() {
-            const nick = document.getElementById('newNick').value.trim();
-            const grade = document.getElementById('newGrade').value;
-            if (!nick || data.some(d => d.nick === nick)) {
-                alert("닉네임을 입력하거나 이미 존재하는 닉네임입니다.");
-                return;
-            }
-            data.push({ nick, grade });
-            document.getElementById('newNick').value = '';
-            render();
-        }
-
-        function toggleAdmin() {
-            const pw = document.getElementById('adminPass').value;
-            if (pw === '5760') {
-                isAdmin = !isAdmin;
-                document.getElementById('addPlayerSection').classList.toggle('hidden');
-                document.getElementById('adminPass').value = '';
-                render();
-            } else {
-                alert('비밀번호가 틀렸습니다');
-            }
         }
 
         function groupByGrade(players) {
